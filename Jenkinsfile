@@ -110,7 +110,8 @@ pipeline {
                                 fi
 
                                 # Run Docker Compose
-                                /usr/local/bin/docker-compose up -d --build
+                                docker compose pull
+                                docker compose up -d --build
                             '
                         """
                     }
