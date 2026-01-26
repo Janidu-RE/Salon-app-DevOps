@@ -87,19 +87,36 @@ resource "aws_instance" "salon_server" {
   user_data = <<-EOF
               #!/bin/bash
               yum update -y
-              amazon-linux-extras install docker -y
+              
+              # Install Docker using the official script (ensures latest version + plugins)
+              curl -fsSL https://get.docker.com -o get-docker.sh
+              sh get-docker.sh
+              
               service docker start
               usermod -a -G docker ec2-user
               chkconfig docker on
               
-              # Install Docker Compose
+              # Install specific Docker Compose standalone if needed, OR relies on 'docker compose' plugin
+              # But Jenkinsfile uses /usr/local/bin/docker-compose.
+              # Let's install standalone V2 that supports buildx properly or just rely on plugin.
+              # The official script installs 'docker-compose-plugin'.
+              # We can alias it or just install the standalone binary again but ensure buildx is picked up.
+              
+              # Install standalone docker-compose (V2)
               curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               chmod +x /usr/local/bin/docker-compose
               
-              # Install Docker Buildx
-              mkdir -p /usr/libexec/docker/cli-plugins
-              curl -SL https://github.com/docker/buildx/releases/download/v0.19.0/buildx-v0.19.0.linux-amd64 -o /usr/libexec/docker/cli-plugins/docker-buildx
-              chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+              # Ensure buildx is available for the standalone binary 
+              # (V2 standalone often bundles it or looks in plugins)
+              # But to be safe, let's explicitely install the plugin for the user
+              mkdir -p /usr/lib/docker/cli-plugins
+              curl -SL https://github.com/docker/buildx/releases/download/v0.19.0/buildx-v0.19.0.linux-amd64 -o /usr/lib/docker/cli-plugins/docker-buildx
+              chmod +x /usr/lib/docker/cli-plugins/docker-buildx
+              
+              # Also link for the ec2-user
+              mkdir -p /home/ec2-user/.docker/cli-plugins
+              ln -s /usr/lib/docker/cli-plugins/docker-buildx /home/ec2-user/.docker/cli-plugins/docker-buildx
+              chown -R ec2-user:ec2-user /home/ec2-user/.docker
               EOF
 
   tags = {
