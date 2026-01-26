@@ -86,36 +86,21 @@ resource "aws_instance" "salon_server" {
 
   user_data = <<-EOF
               #!/bin/bash
-              set -e
-              
-              # Log everything
-              exec > >(tee /var/log/user-data.log)
-              exec 2>&1
-              
-              echo "Starting user-data script at $(date)"
-              
               yum update -y
 
               # Install Docker
-              echo "Installing Docker..."
               curl -fsSL https://get.docker.com | sh
 
+              
               systemctl enable docker
               systemctl start docker
-              
-              # Wait for Docker to be fully started
-              until systemctl is-active --quiet docker; do
-                echo "Waiting for Docker daemon to start..."
-                sleep 2
-              done
-              
               usermod -aG docker ec2-user
 
-              # Verify Docker installation
+              newgrp docker <<EONG
               docker --version
+              EONG
 
               # ---- Docker Compose plugin (CORRECT path for AL2) ----
-              echo "Installing Docker Compose..."
               mkdir -p /usr/libexec/docker/cli-plugins
 
               curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 \
@@ -124,21 +109,11 @@ resource "aws_instance" "salon_server" {
               chmod +x /usr/libexec/docker/cli-plugins/docker-compose
 
               # ---- Docker Buildx plugin ----
-              echo "Installing Docker Buildx..."
               curl -SL https://github.com/docker/buildx/releases/download/v0.19.0/buildx-v0.19.0.linux-amd64 \
                 -o /usr/libexec/docker/cli-plugins/docker-buildx
 
               chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
 
-              # Verify installations
-              docker compose version
-              docker buildx version
-
-              # CREATE THE MARKER FILE - This is what Jenkins waits for
-              echo "Creating docker-ready marker file..."
-              touch /var/lib/cloud/instance/docker-ready
-              
-              echo "User-data script completed successfully at $(date)"
               EOF
 
   tags = {
