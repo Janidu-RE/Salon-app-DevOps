@@ -84,36 +84,35 @@ pipeline {
 
         stage('Deploy to EC2') {
             steps {
-                sshagent(['ec2-ssh-key']) {
-                    script {
-                        def instanceUsername = 'ec2-user'
-                        // We need the IP. We can get it from terraform output or assume it matches the one we just provisioned.
-                        // Ideally, we parse terraform output.
-                        dir('terraform') {
-                            def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
-                            
-                            // SSH and Deploy
-                            sh """
-                                ssh -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
-                                    # Ensure Git is installed
-                                    if ! command -v git &> /dev/null; then
-                                        sudo yum install git -y
-                                    fi
+                script {
+                    def instanceUsername = 'ec2-user'
+                    dir('terraform') {
+                        def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
+                        
+                        // Ensure key permissions (although TF does this, it is safer to be explicit)
+                        sh 'chmod 400 salon-app-key.pem'
 
-                                    # Clone or Pull
-                                    if [ -d "salon-app" ]; then
-                                        cd salon-app
-                                        git pull origin main
-                                    else
-                                        git clone https://github.com/Janidu-RE/DevOps.git salon-app
-                                        cd salon-app
-                                    fi
+                        // SSH and Deploy
+                        sh """
+                            ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
+                                # Ensure Git is installed
+                                if ! command -v git &> /dev/null; then
+                                    sudo yum install git -y
+                                fi
 
-                                    # Run Docker Compose
-                                    /usr/local/bin/docker-compose up -d --build
-                                '
-                            """
-                        }
+                                # Clone or Pull
+                                if [ -d "salon-app" ]; then
+                                    cd salon-app
+                                    git pull origin main
+                                else
+                                    git clone https://github.com/Janidu-RE/DevOps.git salon-app
+                                    cd salon-app
+                                fi
+
+                                # Run Docker Compose
+                                /usr/local/bin/docker-compose up -d --build
+                            '
+                        """
                     }
                 }
             }
