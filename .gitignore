@@ -1,0 +1,15 @@
+# Terraform
+**/.terraform/*
+*.tfstate
+*.tfstate.backup
+*.pem
+
+# IDE
+.vscode
+.idea
+.DS_Store
+
+# Node
+node_modules/
+build/
+dist/
