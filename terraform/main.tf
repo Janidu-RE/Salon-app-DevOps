@@ -113,7 +113,7 @@ resource "aws_instance" "salon_server" {
                 -o /usr/libexec/docker/cli-plugins/docker-buildx
 
               chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
-
+              touch /var/lib/cloud/instance/docker-ready
               EOF
 
   tags = {
