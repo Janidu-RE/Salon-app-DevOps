@@ -101,7 +101,10 @@ resource "aws_instance" "salon_server" {
               # Let's install standalone V2 that supports buildx properly or just rely on plugin.
               # The official script installs 'docker-compose-plugin'.
               # We can alias it or just install the standalone binary again but ensure buildx is picked up.
-              
+              mkdir -p /usr/lib/docker/cli-plugins
+              curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 \
+                -o /usr/lib/docker/cli-plugins/docker-compose
+              chmod +x /usr/lib/docker/cli-plugins/docker-compose
               
               # Ensure buildx is available for the standalone binary 
               # (V2 standalone often bundles it or looks in plugins)
