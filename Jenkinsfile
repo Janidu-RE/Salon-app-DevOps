@@ -61,6 +61,7 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     dir('terraform') {
+                        sh 'terraform destroy -auto-approve'
                         sh 'terraform init'
                         sh 'terraform plan -out=tfplan'
                     }
@@ -76,7 +77,6 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     dir('terraform') {
-                        sh 'terraform destroy -auto-approve'
                         sh 'terraform apply -auto-approve tfplan'
                     }
                 }
