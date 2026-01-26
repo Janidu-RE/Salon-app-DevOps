@@ -96,6 +96,10 @@ resource "aws_instance" "salon_server" {
               systemctl start docker
               usermod -aG docker ec2-user
 
+              newgrp docker <<EONG
+              docker --version
+              EONG
+
               # ---- Docker Compose plugin (CORRECT path for AL2) ----
               mkdir -p /usr/libexec/docker/cli-plugins
 

@@ -97,12 +97,13 @@ pipeline {
                         sh """
                             ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
                                 # Wait for Docker to be ready (user_data might still be running)
-                                echo "Waiting for Docker to be installed..."
-                                until command -v docker &> /dev/null; do
+                                echo "Waiting for Docker setup to finish..."
+                                until [ -f /var/lib/cloud/instance/docker-ready ]; do
                                     sleep 5
-                                    echo "Docker not found yet... waiting"
+                                    echo "Still waiting for Docker..."
                                 done
-                                echo "Docker is available."
+                                echo "Docker setup complete."
+                                sudo systemctl status docker --no-pager
 
                                 # Ensure Git is installed
                                 if ! command -v git &> /dev/null; then
@@ -119,8 +120,8 @@ pipeline {
                                 fi
 
                                 # Run Docker Compose
-                                docker compose pull
-                                docker compose up -d --build
+                                sudo docker compose pull
+                                sudo docker compose up -d --build
                             '
                         """
                     }
