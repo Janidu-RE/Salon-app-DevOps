@@ -91,8 +91,9 @@ resource "aws_instance" "salon_server" {
               # Install Docker
               curl -fsSL https://get.docker.com | sh
 
-              systemctl start docker
+              
               systemctl enable docker
+              systemctl start docker
               usermod -aG docker ec2-user
 
               # ---- Docker Compose plugin (CORRECT path for AL2) ----

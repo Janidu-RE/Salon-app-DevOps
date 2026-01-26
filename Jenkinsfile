@@ -96,6 +96,14 @@ pipeline {
                         // SSH and Deploy
                         sh """
                             ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
+                                # Wait for Docker to be ready (user_data might still be running)
+                                echo "Waiting for Docker to be installed..."
+                                until command -v docker &> /dev/null; do
+                                    sleep 5
+                                    echo "Docker not found yet... waiting"
+                                done
+                                echo "Docker is available."
+
                                 # Ensure Git is installed
                                 if ! command -v git &> /dev/null; then
                                     sudo yum install git -y
