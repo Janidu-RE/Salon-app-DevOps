@@ -4,7 +4,6 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-login') 
         DOCKERHUB_USERNAME = 'janidu007' 
-        PATH = "/usr/local/bin:/usr/local/sbin:/opt/homebrew/bin:$PATH"
         JAVA_HOME = "/usr/lib/jvm/java-21-amazon-corretto.x86_64"
 
     }
