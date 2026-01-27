@@ -26,7 +26,7 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker images using docker-compose..."
-                    sh 'docker-compose build'
+                    sh '/usr/local/bin/docker-compose build'
                 }
             }
         }
