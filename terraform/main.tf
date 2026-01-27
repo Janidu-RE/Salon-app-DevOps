@@ -86,33 +86,32 @@ resource "aws_instance" "salon_server" {
 
   user_data = <<-EOF
               #!/bin/bash
+              set -e
+              
+              # 1. Update OS
               yum update -y
 
-              # Install Docker
-              curl -fsSL https://get.docker.com | sh
-
-              
-              systemctl enable docker
+              # 2. Install Docker using Amazon Extras (The "Native" Way)
+              amazon-linux-extras install docker -y
+    
+              # 3. Start & Enable Docker
               systemctl start docker
+              systemctl enable docker
+    
+              # 4. Add ec2-user to docker group
               usermod -aG docker ec2-user
 
-              newgrp docker <<EONG
-              docker --version
-              EONG
+              # 5. Install Docker Compose (Standalone Binary)
+              # AL2 is older, so the standalone binary in /usr/local/bin is more reliable 
+              # than the plugin method for "docker compose" commands.
+              curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
+    
+              chmod +x /usr/local/bin/docker-compose
+    
+              # Optional: Alias 'docker compose' to 'docker-compose' for convenience
+              echo 'alias "docker compose"="docker-compose"' >> /home/ec2-user/.bashrc
 
-              # ---- Docker Compose plugin (CORRECT path for AL2) ----
-              mkdir -p /usr/libexec/docker/cli-plugins
-
-              curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 \
-                -o /usr/libexec/docker/cli-plugins/docker-compose
-
-              chmod +x /usr/libexec/docker/cli-plugins/docker-compose
-
-              # ---- Docker Buildx plugin ----
-              curl -SL https://github.com/docker/buildx/releases/download/v0.19.0/buildx-v0.19.0.linux-amd64 \
-                -o /usr/libexec/docker/cli-plugins/docker-buildx
-
-              chmod +x /usr/libexec/docker/cli-plugins/docker-buildx
+              # Signal completion
               touch /var/lib/cloud/instance/docker-ready
               EOF
 
