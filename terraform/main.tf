@@ -5,6 +5,11 @@ terraform {
       version = "~> 5.0"
     }
   }
+  backend "s3" {
+    bucket = "janidu-terraform-state-backend" 
+    key    = "salon-app/terraform.tfstate"     
+    region = "us-east-1"                      
+  }
 }
 
 provider "aws" {
@@ -27,6 +32,7 @@ resource "local_file" "private_key" {
   filename = "${path.module}/${var.key_name}.pem"
   file_permission = "0400"
 }
+
 
 # Security Group
 resource "aws_security_group" "salon_sg" {
@@ -118,4 +124,24 @@ resource "aws_instance" "salon_server" {
   tags = {
     Name = "SalonAppInstance"
   }
+}
+
+# 1. Create the Static IP
+resource "aws_eip" "salon_static_ip" {
+  domain   = "vpc"
+  
+  # This links the IP to your specific server
+  instance = aws_instance.salon_server.id 
+  
+  # This ensures the IP is created only AFTER the server exists
+  depends_on = [aws_instance.salon_server]
+  
+  tags = {
+    Name = "Salon-App-Static-IP"
+  }
+}
+
+# 2. Print the IP to the console so you can see it
+output "website_url" {
+  value = "http://${aws_eip.salon_static_ip.public_ip}:3000"
 }
