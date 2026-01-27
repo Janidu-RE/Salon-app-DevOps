@@ -61,7 +61,8 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     dir('terraform') {
-                        sh 'terraform init -reconfigure'
+                        sh 'rm -rf .terraform .terraform.lock.hcl terraform.tfstate terraform.tfstate.backup'
+                        sh 'terraform init -reconfigure -input=false'
                         sh 'terraform plan -out=tfplan'
                     }
                 }
