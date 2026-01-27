@@ -61,7 +61,6 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     dir('terraform') {
-                        sh 'terraform destroy -auto-approve'
                         sh 'terraform init'
                         sh 'terraform plan -out=tfplan'
                     }
@@ -121,7 +120,7 @@ pipeline {
 
                                 # Run Docker Compose
                                 sudo /usr/local/bin/docker-compose pull
-                                sudo /usr/local/bin/docker-compose up -d --build
+                                sudo /usr/local/bin/docker-compose up -d 
                             '
                         """
                     }
