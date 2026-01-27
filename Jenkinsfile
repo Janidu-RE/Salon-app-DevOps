@@ -120,8 +120,8 @@ pipeline {
                                 fi
 
                                 # Run Docker Compose
-                                sudo docker-compose pull
-                                sudo docker-compose up -d --build
+                                sudo /usr/local/bin/docker-compose pull
+                                sudo /usr/local/bin/docker-compose up -d --build
                             '
                         """
                     }
