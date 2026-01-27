@@ -1,6 +1,7 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { API_BASE_URL } from "../config";
 
 const Signup = () => {
   const [username, setUsername] = useState("");
@@ -29,7 +30,7 @@ const Signup = () => {
     // --- API Call ---
     try {
       // Send only the data needed by the backend's SignupRequest DTO
-      const res = await axios.post("http://localhost:9090/api/auth/signup", {
+      const res = await axios.post(`${API_BASE_URL}/auth/signup`, {
         username: username,
         email: email,
         password: password,
