@@ -61,7 +61,7 @@ pipeline {
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
                     dir('terraform') {
-                        sh 'terraform init'
+                        sh 'terraform init -reconfigure'
                         sh 'terraform plan -out=tfplan'
                     }
                 }
