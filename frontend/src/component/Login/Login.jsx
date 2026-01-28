@@ -36,6 +36,7 @@ const Login = () => {
           "user",
           JSON.stringify({
             username: res.data.username,
+            userId: res.data.userId,
             role: res.data.role,
           })
         );

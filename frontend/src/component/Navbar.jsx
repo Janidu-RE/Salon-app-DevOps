@@ -60,12 +60,26 @@ const Navbar = () => {
       {/* Right: Login / Sign Out */}
       <div>
         {isLoggedIn ? (
-          <button
-            onClick={handleSignOut}
-            className="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition duration-300 shadow-md"
-          >
-            Sign Out
-          </button>
+          <div className="flex items-center space-x-4">
+             <Link
+              to="/my-appointments"
+              className="text-gray-700 font-medium hover:text-emerald-600 transition duration-300 hidden md:block" // Hidden on mobile for simplicity
+            >
+              My Appointments
+            </Link>
+            <Link
+              to="/booking"
+              className="bg-emerald-600 text-white px-5 py-2 rounded-lg font-semibold hover:bg-emerald-700 transition duration-300 shadow-md"
+            >
+              Book Now
+            </Link>
+            <button
+              onClick={handleSignOut}
+              className="bg-red-500 text-white px-5 py-2 rounded-lg font-semibold hover:bg-red-600 transition duration-300 shadow-md"
+            >
+              Sign Out
+            </button>
+          </div>
         ) : (
           <Link
             to="/login"
