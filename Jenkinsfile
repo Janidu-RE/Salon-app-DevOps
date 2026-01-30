@@ -127,6 +127,13 @@ pipeline {
                                     --name salon-frontend \
                                     -p 5173:5173 \
                                     janidu007/salon-frontend:latest
+
+                                docker run -d \
+                                    --name salon-mongo \
+                                    -p 27018:27017 \
+                                    -v mongo-data:/data/db \
+                                    -e MONGO_INITDB_DATABASE=salonAPI \
+                                     mongo:6.0
                             '
                         """
                     }
