@@ -119,14 +119,14 @@ pipeline {
                                 # Run backend
                                 sudo docker run -d \
                                     --name salon-backend \
-                                    -p 8080:8080 \
-                                    janidu/salon-backend:latest
+                                    -p 9090:9090 \
+                                    janidu007/salon-backend:latest
 
                                 # Run frontend
                                 sudo docker run -d \
                                     --name salon-frontend \
-                                    -p 80:80 \
-                                    janidu/salon-frontend:latest
+                                    -p 5173:5173 \
+                                    janidu007/salon-frontend:latest
                             '
                         """
                     }
