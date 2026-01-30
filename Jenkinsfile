@@ -105,23 +105,25 @@ pipeline {
                                 echo "Docker setup complete."
                                 sudo systemctl status docker --no-pager
 
-                                # Ensure Git is installed
-                                if ! command -v git &> /dev/null; then
-                                    sudo yum install git -y
-                                fi
+                                # pull from docker hub
+                                sudo docker pull janidu/salon-backend:latest
+                                sudo docker pull janidu/salon-frontend:latest
 
-                                # Clone or Pull
-                                if [ -d "salon-app" ]; then
-                                    cd salon-app
-                                    git pull origin main
-                                else
-                                    git clone https://github.com/Janidu-RE/DevOps.git salon-app
-                                    cd salon-app
-                                fi
+                                # Stop & remove old containers if they exist
+                                sudo docker rm -f salon-backend || true
+                                sudo docker rm -f salon-frontend || true
 
-                                # Run Docker Compose
-                                sudo /usr/local/bin/docker-compose pull
-                                sudo /usr/local/bin/docker-compose up -d 
+                                # Run backend
+                                sudo docker run -d \
+                                    --name salon-backend \
+                                    -p 8080:8080 \
+                                    janidu/salon-backend:latest
+
+                                # Run frontend
+                                sudo docker run -d \
+                                    --name salon-frontend \
+                                    -p 80:80 \
+                                    janidu/salon-frontend:latest
                             '
                         """
                     }
