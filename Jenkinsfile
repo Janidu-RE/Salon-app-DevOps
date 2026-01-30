@@ -105,7 +105,8 @@ pipeline {
                                 echo "Docker setup complete."
                                 sudo systemctl status docker --no-pager
 
-                                echo '${DH_PASS}' | sudo docker login -u '${DH_USER}' --password-stdin
+                                echo "$DOCKERHUB_CREDENTIALS_PSW" | sudo docker login \
+                                    -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
 
                                 # pull from docker hub
                                 sudo docker pull janidu/salon-backend:latest
