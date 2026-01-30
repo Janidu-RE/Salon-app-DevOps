@@ -20,7 +20,7 @@ const About = () => {
           <section>
             <h2 className="text-3xl font-bold text-gray-900 mb-6">Our Story</h2>
             <p className="text-lg text-gray-600 leading-relaxed">
-              Founded in 2024, SalonLK began with a simple mission: to provide high-quality beauty services in a relaxing and luxurious environment. 
+              Founded in 2023, SalonLK began with a simple mission: to provide high-quality beauty services in a relaxing and luxurious environment. 
               We believe that self-care is not just a luxury, but a necessity. Our team of expert stylists and therapists are dedicated to helping you look and feel your best.
             </p>
           </section>
