@@ -117,11 +117,16 @@ pipeline {
                                 sudo docker rm -f salon-frontend || true
                                 docker rm -f salon-mongo || true
 
-                                # Run backend
-                                sudo docker run -d \
-                                    --name salon-backend \
-                                    -p 9090:9090 \
-                                    janidu007/salon-backend:latest
+                                docker start salon-mongo
+
+                                # Run backend with network and env variables
+                                docker run -d \
+                                  --name salon-backend \
+                                  --network salon-net \
+                                  -p 9090:9090 \
+                                  -e SPRING_DATA_MONGODB_URI=mongodb://salon-mongo:27017/salonAPI \
+                                  -e SPRING_DATA_MONGODB_DATABASE=salonAPI \
+                                  janidu007/salon-backend:latest
 
                                 # Run frontend
                                 sudo docker run -d \
@@ -129,12 +134,6 @@ pipeline {
                                     -p 5173:5173 \
                                     janidu007/salon-frontend:latest
 
-                                docker run -d \
-                                    --name salon-mongo \
-                                    -p 27018:27017 \
-                                    -v mongo-data:/data/db \
-                                    -e MONGO_INITDB_DATABASE=salonAPI \
-                                     mongo:6.0
                             '
                         """
                     }
