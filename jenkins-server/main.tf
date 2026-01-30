@@ -11,7 +11,7 @@ provider "aws" {
   region = "us-east-1" 
 }
 
-# --- 1. Unique SSH Key for Jenkins ---
+#SSH Key for Jenkins
 resource "tls_private_key" "jenkins_pk" {
   algorithm = "RSA"
   rsa_bits  = 4096
@@ -28,7 +28,7 @@ resource "local_file" "jenkins_private_key" {
   file_permission = "0400"
 }
 
-# --- 2. Security Group (Ports 22 & 8080) ---
+# Security Group (Ports 22 & 8080)
 resource "aws_security_group" "jenkins_sg" {
   name        = "jenkins-standalone-sg"
   description = "Allow SSH and Jenkins Traffic"
@@ -57,7 +57,7 @@ resource "aws_security_group" "jenkins_sg" {
   }
 }
 
-# --- 3. Get Linux AMI ---
+# Get Linux AMI
 data "aws_ami" "amazon_linux_2023" {
   most_recent = true
   owners      = ["amazon"]
@@ -67,7 +67,7 @@ data "aws_ami" "amazon_linux_2023" {
   }
 }
 
-# --- 4. The Jenkins Server ---
+# The Jenkins Server
 resource "aws_instance" "jenkins_server" {
   ami           = data.aws_ami.amazon_linux_2023.id
   instance_type = "t3.small" 
@@ -78,25 +78,25 @@ resource "aws_instance" "jenkins_server" {
               #!/bin/bash
               set -e
               
-              # 1. Install Java 21
+              # Install Java 21
               yum update -y
               yum install java-21-amazon-corretto -y
 
-              # 2. Install Jenkins
+              # Install Jenkins
               wget -O /etc/yum.repos.d/jenkins.repo https://pkg.jenkins.io/redhat-stable/jenkins.repo
               rpm --import https://pkg.jenkins.io/redhat-stable/jenkins.io-2023.key
               yum install jenkins -y
               systemctl enable jenkins
               systemctl start jenkins
 
-              # 3. Install Docker & Git
+              # Install Docker & Git
               yum install git -y
               amazon-linux-extras install docker -y
               systemctl enable docker
               systemctl start docker
               usermod -a -G docker jenkins
 
-              # 4. Install Docker Compose
+              # Install Docker Compose
               curl -L "https://github.com/docker/compose/releases/download/v2.20.2/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
               chmod +x /usr/local/bin/docker-compose
               ln -s /usr/local/bin/docker-compose /usr/bin/docker-compose

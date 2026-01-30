@@ -90,7 +90,7 @@ pipeline {
                     dir('terraform') {
                         def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
                         
-                        // Ensure key permissions (although TF does this, it is safer to be explicit)
+                        // Ensure key permissions
                         sh 'chmod 400 salon-app-key.pem'
 
                         // SSH and Deploy
