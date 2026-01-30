@@ -84,63 +84,54 @@ pipeline {
         }
 
         stage('Deploy to EC2') {
-    steps {
-        script {
-            def instanceUsername = 'ec2-user'
+            steps {
+                script {
+                    def instanceUsername = 'ec2-user'
+                    dir('terraform') {
+                        def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
+                        
+                        // Ensure key permissions
+                        sh 'chmod 400 salon-app-key.pem'
 
-            dir('terraform') {
-                def ipProxy = sh(
-                    script: "terraform output -raw instance_public_ip",
-                    returnStdout: true
-                ).trim()
+                        // SSH and Deploy
+                        sh """
+                            ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
+                                # Wait for Docker to be ready (user_data might still be running)
+                                echo "Waiting for Docker setup to finish..."
+                                until [ -f /var/lib/cloud/instance/docker-ready ]; do
+                                    sleep 5
+                                    echo "Still waiting for Docker..."
+                                done
+                                echo "Docker setup complete."
+                                sudo systemctl status docker --no-pager
 
-                sh 'chmod 400 salon-app-key.pem'
+                                echo "$DOCKERHUB_CREDENTIALS_PSW" | sudo docker login \
+                                    -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
 
-                sh """
-                ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
-                    echo "Connected to EC2"
+                                # pull from docker hub
+                                sudo docker pull janidu007/salon-backend:latest
+                                sudo docker pull janidu007/salon-frontend:latest
 
-                    # Wait for Docker to be ready
-                    until [ -f /var/lib/cloud/instance/docker-ready ]; do
-                        sleep 5
-                    done
+                                # Stop & remove old containers if they exist
+                                sudo docker rm -f salon-backend || true
+                                sudo docker rm -f salon-frontend || true
 
-                    echo "$DOCKERHUB_CREDENTIALS_PSW" | docker login \
-                        -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                                # Run backend
+                                sudo docker run -d \
+                                    --name salon-backend \
+                                    -p 9090:9090 \
+                                    janidu007/salon-backend:latest
 
-                    # Install git if missing
-                    if ! command -v git &> /dev/null; then
-                        sudo yum install git -y
-                    fi
-
-                    # App directory
-                    mkdir -p ~/salon-app
-                    cd ~/salon-app
-
-                    # Clone or pull repo (for docker-compose.yml)
-                    if [ -d ".git" ]; then
-                        git pull origin main
-                    else
-                        git clone https://github.com/Janidu-RE/DevOps.git .
-                    fi
-
-                    # Stop old containers
-                    docker compose down || true
-
-                    # Pull latest images from Docker Hub
-                    docker compose pull
-
-                    # Start everything (Mongo + Backend + Frontend)
-                    docker compose up -d
-
-                    docker ps
-                '
-                """
+                                # Run frontend
+                                sudo docker run -d \
+                                    --name salon-frontend \
+                                    -p 5173:5173 \
+                                    janidu007/salon-frontend:latest
+                            '
+                        """
+                    }
+                }
             }
-        }
-    }
-}
-
         }
 
         stage('Clean Up') {
