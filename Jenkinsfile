@@ -109,8 +109,8 @@ pipeline {
                                     -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
 
                                 # pull from docker hub
-                                sudo docker pull janidu/salon-backend:latest
-                                sudo docker pull janidu/salon-frontend:latest
+                                sudo docker pull janidu007/salon-backend:latest
+                                sudo docker pull janidu007/salon-frontend:latest
 
                                 # Stop & remove old containers if they exist
                                 sudo docker rm -f salon-backend || true
