@@ -115,6 +115,7 @@ pipeline {
                                 # Stop & remove old containers if they exist
                                 sudo docker rm -f salon-backend || true
                                 sudo docker rm -f salon-frontend || true
+                                docker rm -f salon-mongo || true
 
                                 # Run backend
                                 sudo docker run -d \
