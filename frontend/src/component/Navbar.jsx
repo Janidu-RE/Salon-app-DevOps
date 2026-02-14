@@ -32,7 +32,7 @@ const Navbar = () => {
         to="/"
         className="text-3xl font-extrabold text-emerald-700 tracking-wide"
       >
-        Salon<span className="text-emerald-500">LaKa</span>
+        Salon<span className="text-emerald-500">LK</span>
       </Link>
 
       {/* Center: Links */}
