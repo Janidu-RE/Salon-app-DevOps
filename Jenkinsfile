@@ -90,10 +90,9 @@ pipeline {
                     dir('terraform') {
                         def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
                         
-                        // Ensure key permissions 
                         sh 'chmod 400 salon-app-key.pem'
 
-                        // SSH and Deploy
+
                         sh """
                             ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
                                 # Wait for Docker to be ready (user_data might still be running)

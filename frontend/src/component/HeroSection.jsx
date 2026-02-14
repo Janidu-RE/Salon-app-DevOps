@@ -9,7 +9,7 @@ const HeroSection = () => {
           {/* Left Content */}
           <div className="text-center lg:text-left">
             <h1 className="text-4xl lg:text-6xl font-bold text-gray-900 leading-tight">
-              Discover Your
+              Janidu Hemachandra
               <span className="text-emerald-600 block">Natural Beauty</span>
             </h1>
             <p className="mt-6 text-xl text-gray-600 max-w-2xl">
