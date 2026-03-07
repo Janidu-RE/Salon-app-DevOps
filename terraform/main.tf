@@ -92,6 +92,10 @@ resource "aws_instance" "ubuntu_server" {
     # Add the default ubuntu user to the docker group
     usermod -aG docker ubuntu
 
+    # install Docker compose
+    sudo apt-get update
+    sudo apt-get install docker-compose-plugin
+
     # Signal completion
     touch /var/lib/cloud/instance/docker-ready
   EOF
