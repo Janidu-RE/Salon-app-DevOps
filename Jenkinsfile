@@ -84,6 +84,17 @@ pipeline {
                     def instanceUsername = 'ubuntu'
                     dir('terraform') {
                         def ipProxy = sh(script: "terraform output -raw instance_public_ip 2>/dev/null", returnStdout: true).trim()
+
+                        sh """
+                        echo "Waiting for SSH on ${ipProxy}..."
+                        for i in {1..30}; do
+                            nc -z ${ipProxy} 22 && echo "SSH is ready!" && exit 0
+                            echo "SSH not ready yet... waiting"
+                            sleep 10
+                        done
+                        echo "SSH still unavailable"
+                        exit 1
+                        """
                         
                         sh 'chmod 400 salon-app-key.pem'
 
