@@ -1,40 +1,35 @@
-version: "3.9"
-
 services:
   mongodb:
-    image: mongo:6.0
-    container_name: salon-mongo
-    ports:
-      - "27018:27017"
-    environment:
-      MONGO_INITDB_DATABASE: salonAPI
+    image: mongo
+    container_name: salon_mongo_container
     volumes:
       - mongo-data:/data/db
+    ports:
+      - "27018:27017"
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
-    image: janidu007/salon-backend:latest  
-    container_name: salon-backend
+    build: ./backend
+    container_name: salon_backend_container
     ports:
       - "9090:9090"
-    environment:
-      SPRING_DATA_MONGODB_URI: mongodb://mongodb:27017/salonAPI
-      SPRING_DATA_MONGODB_DATABASE: salonAPI
     depends_on:
       - mongodb
+    environment:
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DATABASE=salonAPI
 
   frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    image: janidu007/salon-frontend:latest 
-    container_name: salon-frontend
+    build: ./frontend
+    container_name: salon_frontend_container
     ports:
       - "5173:5173"
     depends_on:
       - backend
+    stdin_open: true
+    tty: true
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
 
 volumes:
   mongo-data:

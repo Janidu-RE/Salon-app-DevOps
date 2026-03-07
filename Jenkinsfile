@@ -86,9 +86,9 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 script {
-                    def instanceUsername = 'ec2-user'
+                    def instanceUsername = 'ubuntu'
                     dir('terraform') {
-                        def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
+                        def ipProxy = readFile('terraform/server_ip.txt').trim()
                         
                         sh 'chmod 400 salon-app-key.pem'
 
@@ -107,40 +107,10 @@ pipeline {
                                 echo "$DOCKERHUB_CREDENTIALS_PSW" | sudo docker login \
                                     -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
 
-                                # pull from docker hub
-                                sudo docker pull janidu007/salon-backend:latest
-                                sudo docker pull janidu007/salon-frontend:latest
-                                sudo docker pull mongo:6.0
-
-                                # Stop & remove old containers if they exist
-                                sudo docker rm -f salon-backend || true
-                                sudo docker rm -f salon-frontend || true
-                                sudo docker rm -f salon-mongo || true
-
-                                # Create network if it doesnt exist
-                                sudo docker network create salon-network || true
-
-                                # Run MongoDB
-                                sudo docker run -d \
-                                    --name salon-mongo \
-                                    --network salon-network \
-                                    -p 27017:27017 \
-                                    mongo:6.0
-
-                                # Run backend
-                                sudo docker run -d \
-                                    --name salon-backend \
-                                    --network salon-network \
-                                    -p 9090:9090 \
-                                    -e SPRING_DATA_MONGODB_URI=mongodb://salon-mongo:27017/salonAPI \
-                                    janidu007/salon-backend:latest
-
-                                # Run frontend
-                                sudo docker run -d \
-                                    --name salon-frontend \
-                                    --network salon-network \
-                                    -p 5173:5173 \
-                                    janidu007/salon-frontend:latest
+                                cd /home/${instanceUsername}
+                                sudo docker-compose pull
+                                sudo docker-compose up -d
+                               
                             '
                         """
                     }

@@ -2,18 +2,14 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = "~> 5.0"
+      version = "~> 6.0"
     }
-  }
-  backend "s3" {
-    bucket = "janidu-terraform-state-backend" 
-    key    = "salon-app/terraform.tfstate"     
-    region = "us-east-1"                      
   }
 }
 
+# Configure the AWS Provider
 provider "aws" {
-  region = var.aws_region
+  region = "us-east-1"
 }
 
 # Generate a new SSH key pair
@@ -33,7 +29,6 @@ resource "local_file" "private_key" {
   file_permission = "0400"
 }
 
-
 # Security Group
 resource "aws_security_group" "salon_sg" {
   name        = "salon-security-group"
@@ -44,13 +39,13 @@ resource "aws_security_group" "salon_sg" {
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # For production, restrict this to your IP
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
     description = "Frontend"
-    from_port   = 5173
-    to_port     = 5173
+    from_port   = 80
+    to_port     = 80
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -71,74 +66,39 @@ resource "aws_security_group" "salon_sg" {
   }
 }
 
-# AMI (Amazon Linux 2)
-data "aws_ami" "amazon_linux_2" {
-  most_recent = true
-  owners      = ["amazon"]
 
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
-}
-
-# EC2 Instance
-resource "aws_instance" "salon_server" {
-  ami           = data.aws_ami.amazon_linux_2.id
-  instance_type = var.instance_type
+#configure the ec2 instance
+resource "aws_instance" "ubuntu_server" {
+  ami           = "ami-0b6c6ebed2801a5cb"
+  instance_type = "t3.micro"
   key_name      = aws_key_pair.generated_key.key_name
 
   vpc_security_group_ids = [aws_security_group.salon_sg.id]
 
+  tags = {
+    Name = "salon_server"
+  }
   user_data = <<-EOF
-              #!/bin/bash
-              set -e
-              
-              # 1. Update OS
-              yum update -y
-
-              # 2. Install Docker
-              amazon-linux-extras install docker -y
+    #!/bin/bash
     
-              # 3. Start & Enable Docker
-              systemctl start docker
-              systemctl enable docker
-    
-              # 4. Add ec2-user to docker group
-              usermod -aG docker ec2-user
+    # Download and run the official Docker automated install script
+    curl -fsSL https://get.docker.com -o get-docker.sh
+    sh get-docker.sh
 
-              # 5. Install Docker Compose
-              curl -SL https://github.com/docker/compose/releases/download/v2.27.0/docker-compose-linux-x86_64 -o /usr/local/bin/docker-compose
-    
-              chmod +x /usr/local/bin/docker-compose
-    
-              echo 'alias "docker compose"="docker-compose"' >> /home/ec2-user/.bashrc
+    # Start and enable Docker
+    systemctl start docker
+    systemctl enable docker
 
-              # Signal completion
-              touch /var/lib/cloud/instance/docker-ready
-              EOF
+    # Add the default ubuntu user to the docker group
+    usermod -aG docker ubuntu
 
-  tags = {
-    Name = "SalonAppInstance"
-  }
+    # Signal completion
+    touch /var/lib/cloud/instance/docker-ready
+  EOF
+
+}
+resource "local_file" "ip_address" {
+  content  = aws_instance.salon_server.public_ip
+  filename = "${path.module}/server_ip.txt"
 }
 
-# 1. Create the Static IP
-resource "aws_eip" "salon_static_ip" {
-  domain   = "vpc"
-  
-  # This links the IP
-  instance = aws_instance.salon_server.id 
-  
-  # This ensures the IP is created only after the server exists
-  depends_on = [aws_instance.salon_server]
-  
-  tags = {
-    Name = "Salon-App-Static-IP"
-  }
-}
-
-# 2. Print the IP to the console
-output "website_url" {
-  value = "http://${aws_eip.salon_static_ip.public_ip}:3000"
-}
