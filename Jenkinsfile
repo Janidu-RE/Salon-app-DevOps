@@ -12,7 +12,17 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/Janidu-RE/DevOps.git'
             }
         }
+        
 
+        stage('Login to Docker Hub') {
+            steps {
+                script {
+                    sh '''
+                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
+                    '''
+                }
+            }
+        }
 
         stage('Build Docker Images') {
             steps {
@@ -24,15 +34,6 @@ pipeline {
             }
         }
 
-        stage('Login to Docker Hub') {
-            steps {
-                script {
-                    sh '''
-                    echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin
-                    '''
-                }
-            }
-        }
 
         stage('Push Images to Docker Hub') {
             steps {
