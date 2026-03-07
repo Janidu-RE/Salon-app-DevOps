@@ -81,7 +81,7 @@ pipeline {
                 script {
                     def instanceUsername = 'ubuntu'
                     dir('terraform') {
-                        def ipProxy = sh(script: "terraform output -raw instance_public_ip", returnStdout: true).trim()
+                        def ipProxy = sh(script: "terraform output -raw instance_public_ip 2>/dev/null", returnStdout: true).trim()
                         
                         sh 'chmod 400 salon-app-key.pem'
 
