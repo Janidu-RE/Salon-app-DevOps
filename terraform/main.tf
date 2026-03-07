@@ -97,8 +97,4 @@ resource "aws_instance" "ubuntu_server" {
   EOF
 
 }
-resource "local_file" "ip_address" {
-  content  = aws_instance.salon_server.public_ip
-  filename = "${path.module}/server_ip.txt"
-}
 
