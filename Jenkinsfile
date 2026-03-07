@@ -4,8 +4,6 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-login') 
         DOCKERHUB_USERNAME = 'janidu007' 
-        PATH = "/usr/local/bin:/opt/homebrew/bin:${env.PATH}"
-
     }
 
     stages {
@@ -20,8 +18,8 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker images..."
-                    sh "docker build -t ${DOCKERHUB_USERNAME}/salon-backend:latest ./backend"
-                    sh "docker build -t ${DOCKERHUB_USERNAME}/salon-frontend:latest ./frontend"
+                    sh "/usr/local/bin/docker build -t ${DOCKERHUB_USERNAME}/salon-backend:latest ./backend"
+                    sh "/usr/local/bin/docker build -t ${DOCKERHUB_USERNAME}/salon-frontend:latest ./frontend"
                 }
             }
         }
