@@ -13,16 +13,7 @@ terraform {
       version = "~> 6.0"
     }
   }
-}
-
-resource "aws_s3_bucket" "terraform_state" {
-  bucket = "salon-terraform-state-janidu" # Change this to a globally unique name
-
-  # Prevent accidental deletion of this S3 bucket
-  lifecycle {
-    prevent_destroy = true
-  }
-}
+}s
 
 # Configure the AWS Provider
 provider "aws" {
