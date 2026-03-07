@@ -4,6 +4,8 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-login') 
         DOCKERHUB_USERNAME = 'janidu007' 
+        PATH = "/usr/local/bin:/opt/homebrew/bin:${env.PATH}"
+
     }
 
     stages {
