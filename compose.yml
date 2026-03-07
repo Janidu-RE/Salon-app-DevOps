@@ -8,6 +8,7 @@ services:
       - "27018:27017"
 
   backend:
+    image: janidu007/salon-backend:latest
     container_name: salon_backend_container
     ports:
       - "9090:9090"
@@ -18,16 +19,12 @@ services:
       - MONGO_DATABASE=salonAPI
 
   frontend:
+    image: janidu007/salon-frontend:latest
     container_name: salon_frontend_container
     ports:
-      - "5173:5173"
+      - "80:5173"
     depends_on:
       - backend
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./frontend:/app
-      - /app/node_modules
 
 volumes:
   mongo-data:
