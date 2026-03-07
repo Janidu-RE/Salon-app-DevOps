@@ -84,7 +84,15 @@ pipeline {
                 script {
                     def instanceUsername = 'ubuntu'
                     dir('terraform') {
+                    withCredentials([[
+                                        $class: 'AmazonWebServicesCredentialsBinding', 
+                                        credentialsId: 'your-aws-credentials-id', 
+                                        accessKeyVariable: 'AWS_ACCESS_KEY_ID', 
+                                        secretKeyVariable: 'AWS_SECRET_ACCESS_KEY'
+                                    ]])
+
                         def ipProxy = sh(script: "terraform output -raw instance_public_ip 2>/dev/null", returnStdout: true).trim()
+                        echo "The EC2 Instance IP is: ${instanceIp}"
 
                         sh """
                         echo "Waiting for SSH on ${ipProxy}..."
