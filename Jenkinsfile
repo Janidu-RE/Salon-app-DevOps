@@ -99,6 +99,10 @@ pipeline {
                         
                         sh 'chmod 400 salon-app-key.pem'
 
+                        sh """
+                        scp -i salon-app-key.pem -o StrictHostKeyChecking=no ../compose.yml ${instanceUsername}@${ipProxy}:/home/${instanceUsername}/
+                        """
+
 
                         sh """
                             ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
