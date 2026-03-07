@@ -22,11 +22,12 @@ pipeline {
             }
         }
 
-        stage('Build Docker Images from Compose') {
+        stage('Build Docker Images') {
             steps {
                 script {
-                    echo "Building Docker images using docker-compose..."
-                    sh '/usr/local/bin/docker-compose build'
+                    echo "Building Docker images..."
+                    sh "docker build -t ${DOCKERHUB_USERNAME}/salon-backend:latest ./backend"
+                    sh "docker build -t ${DOCKERHUB_USERNAME}/salon-frontend:latest ./frontend"
                 }
             }
         }
