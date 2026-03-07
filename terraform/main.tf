@@ -1,4 +1,12 @@
 terraform {
+
+  #s3 Bucket
+  backend "s3" {
+    bucket  = "salon-terraform-state"
+    key     = "prod/terraform.tfstate"
+    region  = "us-east-1"
+  }
+
   required_providers {
     aws = {
       source  = "hashicorp/aws"
