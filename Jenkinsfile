@@ -18,8 +18,8 @@ pipeline {
             steps {
                 script {
                     echo "Building Docker images..."
-                    sh "/usr/local/bin/docker build -t ${DOCKERHUB_USERNAME}/salon-backend:latest ./backend"
-                    sh "/usr/local/bin/docker build -t ${DOCKERHUB_USERNAME}/salon-frontend:latest ./frontend"
+                    sh "docker build -t ${DOCKERHUB_USERNAME}/salon-backend:latest ./backend"
+                    sh "docker build -t ${DOCKERHUB_USERNAME}/salon-frontend:latest ./frontend"
                 }
             }
         }
