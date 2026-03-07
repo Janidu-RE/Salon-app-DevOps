@@ -4,9 +4,6 @@ pipeline {
     environment {
         DOCKERHUB_CREDENTIALS = credentials('dockerhub-login') 
         DOCKERHUB_USERNAME = 'janidu007' 
-        JAVA_HOME = "/usr/lib/jvm/java-21-amazon-corretto.x86_64"
-        PATH = "${JAVA_HOME}/bin:${PATH}"
-
     }
 
     stages {
@@ -16,11 +13,6 @@ pipeline {
             }
         }
 
-        stage('Build Backend Jar') {
-            steps {
-                sh 'cd backend && ./mvnw clean package -DskipTests'
-            }
-        }
 
         stage('Build Docker Images') {
             steps {
