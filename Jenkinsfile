@@ -86,7 +86,7 @@ pipeline {
                     dir('terraform') {
                         
                     withCredentials([usernamePassword(
-                    credentialsId: 'your-aws-credentials-id', 
+                    credentialsId: 'aws-credentials', 
                     usernameVariable: 'AWS_ACCESS_KEY_ID', 
                     passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                 )]) {
