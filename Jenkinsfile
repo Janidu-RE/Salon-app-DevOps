@@ -83,17 +83,21 @@ pipeline {
             steps {
                 script {
                     def instanceUsername = 'ubuntu'
+                    def ipProxy = ''
+                    
                     dir('terraform') {
                         
-                    withCredentials([usernamePassword(
-                    credentialsId: 'aws-credentials', 
-                    usernameVariable: 'AWS_ACCESS_KEY_ID', 
-                    passwordVariable: 'AWS_SECRET_ACCESS_KEY'
-                )]) {
-                        def ipProxy = sh(script: "terraform output -raw instance_public_ip 2>/dev/null", returnStdout: true).trim()
-                        echo "The EC2 Instance IP is: ${ipProxy}"
+                        withCredentials([usernamePassword(
+                            credentialsId: 'aws-credentials', 
+                            usernameVariable: 'AWS_ACCESS_KEY_ID', 
+                            passwordVariable: 'AWS_SECRET_ACCESS_KEY'
+                        )]) {
+                            ipProxy = sh(script: "terraform output -raw instance_public_ip 2>/dev/null", returnStdout: true).trim()
+                            
+                            echo "The EC2 Instance IP is: ${ipProxy}"
                         }
 
+                        // Now this will work perfectly!
                         sh """
                         echo "Waiting for SSH on ${ipProxy}..."
                         for i in {1..30}; do
@@ -111,7 +115,6 @@ pipeline {
                         scp -i salon-app-key.pem -o StrictHostKeyChecking=no ../compose.yml ${instanceUsername}@${ipProxy}:/home/${instanceUsername}/
                         """
 
-
                         sh """
                             ssh -i salon-app-key.pem -o StrictHostKeyChecking=no ${instanceUsername}@${ipProxy} '
                                 # Wait for Docker to be ready (user_data might still be running)
@@ -123,13 +126,12 @@ pipeline {
                                 echo "Docker setup complete."
                                 sudo systemctl status docker --no-pager
 
-                                echo "$DOCKERHUB_CREDENTIALS_PSW" | sudo docker login \
-                                    -u "$DOCKERHUB_CREDENTIALS_USR" --password-stdin
+                                echo "\$DOCKERHUB_CREDENTIALS_PSW" | sudo docker login \
+                                    -u "\$DOCKERHUB_CREDENTIALS_USR" --password-stdin
 
                                 cd /home/${instanceUsername}
                                 sudo docker compose pull
                                 sudo docker compose up -d
-                               
                             '
                         """
                     }
