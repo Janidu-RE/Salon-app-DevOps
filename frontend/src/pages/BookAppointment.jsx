@@ -26,7 +26,12 @@ const BookAppointment = () => {
     const fetchServices = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/services`);
-        setServices(res.data);
+        if (Array.isArray(res.data)) {
+          setServices(res.data);
+        } else {
+          console.error("Expected array, got:", res.data);
+          setServices([]);
+        }
       } catch (err) {
         console.error("Error fetching services", err);
       }
@@ -100,7 +105,7 @@ const BookAppointment = () => {
                   className="appearance-none rounded-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-t-md focus:outline-none focus:ring-emerald-500 focus:border-emerald-500 focus:z-10 sm:text-sm"
                 >
                   <option value="">Select a Service</option>
-                  {services.map((service) => (
+                  {Array.isArray(services) && services.map((service) => (
                     <option key={service.id} value={service.name}>{service.name}</option>
                   ))}
                 </select>

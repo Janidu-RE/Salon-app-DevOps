@@ -12,7 +12,12 @@ const Services = () => {
     const fetchServices = async () => {
       try {
         const res = await axios.get(`${API_BASE_URL}/services`);
-        setServices(res.data);
+        if (Array.isArray(res.data)) {
+          setServices(res.data);
+        } else {
+          console.error("Expected array, got:", res.data);
+          setServices([]);
+        }
       } catch (err) {
         console.error("Error fetching services:", err);
       } finally {
@@ -38,7 +43,7 @@ const Services = () => {
             <div className="text-center text-gray-500 py-10">Loading services...</div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-              {services.length > 0 ? (
+              {Array.isArray(services) && services.length > 0 ? (
                 services.map((service) => (
                   <div key={service.id} className="bg-white border border-gray-100 rounded-xl shadow-sm hover:shadow-md transition duration-300 overflow-hidden">
                     <div className="p-6">
