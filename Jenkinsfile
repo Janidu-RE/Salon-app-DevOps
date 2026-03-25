@@ -92,7 +92,7 @@ pipeline {
                             usernameVariable: 'AWS_ACCESS_KEY_ID', 
                             passwordVariable: 'AWS_SECRET_ACCESS_KEY'
                         )]) {
-                            ipProxy = sh(script: "terraform output -raw instance_public_ip 2>/dev/null", returnStdout: true).trim()
+                            ipProxy = sh(script: "terraform output -raw instance_Elastic_ip 2>/dev/null", returnStdout: true).trim()
                             
                             echo "The EC2 Instance IP is: ${ipProxy}"
                         }
