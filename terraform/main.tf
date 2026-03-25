@@ -82,7 +82,7 @@ resource "aws_security_group" "salon_sg" {
 #configure the ec2 instance
 resource "aws_instance" "ubuntu_server" {
   ami           = "ami-0b6c6ebed2801a5cb"
-  instance_type = "t3.micro"
+  instance_type = "t3.small"
   key_name      = aws_key_pair.generated_key.key_name
 
   vpc_security_group_ids = [aws_security_group.salon_sg.id]
