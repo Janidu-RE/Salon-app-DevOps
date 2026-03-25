@@ -36,6 +36,10 @@ resource "local_file" "private_key" {
   filename = "${path.module}/${var.key_name}.pem"
   file_permission = "0400"
 }
+resource "aws_eip" "lb" {
+  instance = aws_instance.ubuntu_server.id
+  domain   = "vpc"
+}
 
 # Security Group
 resource "aws_security_group" "salon_sg" {
@@ -110,5 +114,6 @@ resource "aws_instance" "ubuntu_server" {
 
 }
 output "instance_public_ip" {
-  value = aws_instance.ubuntu_server.public_ip
+  value = aws_eip.lb.public_ip
 }
+
